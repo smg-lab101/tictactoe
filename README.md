@@ -1,5 +1,5 @@
 # tictactoe
-On of my very first projects from 2022
+One of my very first projects from 2022
 
 TODO
 - repair js logic
