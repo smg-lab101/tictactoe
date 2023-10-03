@@ -1,26 +1,16 @@
-//Getting the variables
-var one = document.getElementById("one");
-var two = document.getElementById("two");
-var three = document.getElementById("three");
-var four = document.getElementById("four");
-var five = document.getElementById("five");
-var six = document.getElementById("six");
-var seven = document.getElementById("seven");
-var eight = document.getElementById("eight");
-var nine = document.getElementById("nine");
-
+//Getting variables
+var cells = document.querySelectorAll("td");
 var gameHeadline = document.getElementById("gameHeadline");
-
 
 //Add eventlistener for startbutton
 var startButton = document.getElementById("gameStart");
 startButton.addEventListener('click', start);
 
 //Define boolean for game state
-var sombodyWon = true;
+var sombodyWon = false;
 
 //Define boolean for playerstate:
-//playerAState == true : Player A is playing, false : Player B is playing
+//playerAState === true : Player A is playing, false : Player B is playing
 var aIsPlaying = true;
 
 function start() {
@@ -32,18 +22,10 @@ function start() {
 
 //Empty table: replace all cell content with empty string  
 function emptyTable() {
-    one.innerHTML = "";
-    two.innerHTML = "";
-    three.innerHTML = "";
-    four.innerHTML = "";
-    five.innerHTML = "";
-    six.innerHTML = "";
-    seven.innerHTML = "";
-    eight.innerHTML = "";
-    nine.innerHTML = "";
+    cells.forEach((cell) => cell.innerHTML = "");
 }
 
-/*"Resets" the button to start text*/
+//"Resets" the button to start text
 function resetButton() {
     var start = "RE-START";
     startButton.innerHTML = start;
@@ -84,77 +66,20 @@ function fillAndChange(e) {
 
         var td = e.target;
 
-        if (td.innerHTML == "" && aIsPlaying) {
-            console.log("Feld war leer");
-            td.innerHTML = "<img src='src/x.png'>";
-            aIsPlaying = false;
-            playerBState();
-        }
-        if (td.innerHTML == "" && !aIsPlaying) {
-            console.log("Feld war leer");
-            td.innerHTML = "<img src='src/o.png'>";
-            aIsPlaying = true;
-            playerAState();
+        if (td.innerHTML === "") {
+            if (aIsPlaying) {
+                console.log("Feld war leer");
+                td.innerHTML = "<img src='src/x.png'>";
+                aIsPlaying = false;
+                playerBState();
+            } else {
+                console.log("Feld war leer");
+                td.innerHTML = "<img src='src/o.png'>";
+                aIsPlaying = true;
+                playerAState();
+            }
         }
         testEnd();
-    }
-}
-
-/*The Win Testster of the game
-Tests if cells have the same content for each winning pattern
-Also checking if cells are emppty, if not, what the content is
-If not empty, checks content and hands it over to winning()
-*/
-function testEnd() {
-    testDeadEnd();
-    //pattern1 horizontal
-    if (one.innerHTML == two.innerHTML && two.innerHTML == three.innerHTML) {
-        if (one.innerHTML != "") {
-            winning(one.innerHTML);
-            console.log("pattern1");
-        }
-    }
-    //pattern2 horizontal
-    if (four.innerHTML == five.innerHTML && four.innerHTML == six.innerHTML) {
-        if (four.innerHTML != "") {
-            winning(four.innerHTML);
-        }
-    }
-    //pattern3 horizontal
-    if (seven.innerHTML == eight.innerHTML && seven.innerHTML == nine.innerHTML) {
-        if (seven.innerHTML != "") {
-            winning(seven.innerHTML);
-        }
-    }
-    //pattern4 vertical
-    if (one.innerHTML == four.innerHTML && four.innerHTML == seven.innerHTML) {
-        if (one.innerHTML != "") {
-            winning(one.innerHTML);
-        }
-    }
-    //pattern5 vartical
-    if (two.innerHTML == five.innerHTML && two.innerHTML == eigth.innerHTML) {
-        if (two.innerHTML != "") {
-            winning(two.innerHTML);
-        }
-    }
-    //pattern6 vertical
-    if (three.innerHTML == six.innerHTML && two.innerHTML == eigth.innerHTML) {
-        if (two.innerHTML != "") {
-            winning(two.innerHTML);
-        }
-    }
-    //pattern7 diagonal
-    if (one.innerHTML == five.innerHTML && one.innerHTML == nine.innerHTML) {
-        if (one.innerHTML != "") {
-            winning(one.innerHTML);
-        }
-    }
-    //pattern8 diagonal
-    if (three.innerHTML == five.innerHTML && three.innerHTML == seven.innerHTML) {
-        if (three.innerHTML != "") {
-            winning(three.innerHTML);
-        }
     }
 }
 
@@ -164,13 +89,11 @@ function testEnd() {
 3. sets somebodyWon so nothing can be clicked anymore
 */
 function winning(player) {
-    // console.log("winning");
-    //console.log(player);
     somebodyWon = true;
     let play = player;
     console.log(play);
 
-    if (player == "<img src=\"src/x.png\">") {
+    if (player === "<img src=\"src/x.png\">") {
         var playerAwin = "Player A wins!";
 
         gameHeadline.innerHTML = playerAwin;
@@ -179,7 +102,7 @@ function winning(player) {
         resetButton();
         console.log("a wins");
     }
-    if (player == "<img src=\"src/o.png\">") {
+    if (player === "<img src=\"src/o.png\">") {
         var playerBwin = "Player B wins!";
         gameHeadline.innerHTML = playerBwin;
 
@@ -188,12 +111,30 @@ function winning(player) {
     }
 }
 
+//Defines the winning patterns and detects them in the table, using the array of table cells
+function testEnd() {
+    testDeadEnd();
+    const winPatterns = [   [0, 1, 2], [3, 4, 5], [6, 7, 8],    // Horizontal
+                            [0, 3, 6], [1, 4, 7], [2, 5, 8],    // Vertical
+                            [0, 4, 8], [2, 4, 6]    ];           // Diagonal
 
-/*tests if all cells are full, this is before we have a winner*/
+    for (const pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        const cellsContent = [cells[a].innerHTML, cells[b].innerHTML, cells[c].innerHTML];
+
+        if (cellsContent[0] === cellsContent[1] && cellsContent[0] === cellsContent[2] && cellsContent[0] !== "") {
+            winning(cellsContent[0]);
+            console.log("We have a winner!");
+            return;
+        }
+    }
+}
+
+// Tests if all cells are full, this is before we have a winner
 function testDeadEnd() {
-    if (one.innerHTML && two.innerHTML && three.innerHTML &&
-        four.innerHTML && five.innerHTML && six.innerHTML &&
-        seven.innerHTML && eight.innerHTML && nine.innerHTML != "") {
+    var allCellsFilled = Array.from(cells).every(cell => cell.innerHTML !== "");
+
+    if (allCellsFilled) {
         var draw = "A draw! Everybody loses!";
         gameHeadline.innerHTML = draw;
         startButton.style.display = "block";
